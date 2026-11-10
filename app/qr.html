@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo codes</title>
+<style>
+  :root { color-scheme: light; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; --ink: #141413; --muted: #6f6d67; --line: #d9d7cf; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: var(--ink); }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 6px; font-size: 24px; }
+  .note { color: var(--muted); margin: 0 0 6px; max-width: 70ch; }
+  .warn { background: #fff1dc; color: #5c3400; padding: 10px 12px; border-radius: 10px; margin: 12px 0 20px; max-width: 70ch; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 20px; }
+  .actions a, .actions button { font: inherit; font-weight: 600; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .code { border: 1px dashed var(--line); border-radius: 12px; padding: 14px; break-inside: avoid; display: grid; gap: 6px; justify-items: center; text-align: center; }
+  .code .name { font-weight: 700; }
+  .code .meta { font-size: 13px; color: var(--muted); }
+  .code .qr { width: 160px; height: 160px; }
+  .code .qr img, .code .qr canvas { width: 160px !important; height: 160px !important; }
+  .code .url { font-size: 10px; color: var(--muted); word-break: break-all; }
+  @media print { .actions, .warn, .note { display: none; } .wrap { padding: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">Demokoodit</h1>
+  <p class="note" id="note"></p>
+  <p class="warn" id="warn" hidden></p>
+  <div class="actions"><a href="/app/#scan" id="back">←</a><button type="button" onclick="print()" id="print"></button></div>
+  <div class="grid" id="grid"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+  import { PRODUCTS } from '/app/products.js';
+  import { buildDigitalLink } from '/app/digital-link.js';
+  import { TEXT } from '/app/i18n.js';
+  import * as store from '/app/store.js';
+
+  const lang = store.get().lang;
+  const copy = {
+    fi: { title: 'Demokoodit', back: '← Takaisin', print: 'Tulosta',
+      note: 'GS1 Digital Link -QR-koodit demotuotteille. Päiväykset lasketaan tämän päivän demopäivästä. Skannaa puhelimen kameralla: koodi avaa prototyypin ja kirjaa erän hyllyyn. Skannaa sama koodi uudelleen, kun erällä on tehtävä, niin se vahvistaa oikean tuotteen.',
+      local: 'Koodit osoittavat osoitteeseen {o}. Puhelin ei pääse siihen, jos sivu on auki vain tällä tietokoneella. Tulosta koodit julkaistusta osoitteesta.' },
+    en: { title: 'Demo codes', back: '← Back', print: 'Print',
+      note: 'GS1 Digital Link QR codes for the demo products. Dates count from today’s demo day. Scan with the phone camera: the code opens the prototype and adds the batch to the shelf. Scan the same code again when the batch has a task, and it confirms the right product.',
+      local: 'The codes point to {o}. A phone cannot reach it if the page only runs on this computer. Print the codes from the published address.' },
+  }[lang];
+
+  document.documentElement.lang = lang;
+  document.getElementById('title').textContent = copy.title;
+  document.getElementById('note').textContent = copy.note;
+  document.getElementById('back').textContent = copy.back;
+  document.getElementById('print').textContent = copy.print;
+  if (/^(localhost|127\.|\[::1\])/.test(location.hostname)) {
+    const w = document.getElementById('warn');
+    w.textContent = copy.local.replace('{o}', location.origin);
+    w.hidden = false;
+  }
+
+  const days = [1, 2, 3, 5, 9, 12, 14, 21];
+  const grid = document.getElementById('grid');
+  PRODUCTS.forEach((p, i) => {
+    const expiry = store.addDays(store.today(), days[i]);
+    const batch = `Q${p.n}${expiry.slice(5, 7)}${expiry.slice(8)}`;
+    const url = buildDigitalLink(location.origin, { gtin: p.gtin, batch, expiry });
+    const el = document.createElement('div');
+    el.className = 'code';
+    el.innerHTML = `<div class="name"></div><div class="meta"></div><div class="qr"></div><div class="url"></div>`;
+    el.querySelector('.name').textContent = p[lang];
+    el.querySelector('.meta').textContent = `${TEXT[lang].date}: ${expiry.split('-').reverse().join('.')} · ${TEXT[lang].batch}: ${batch}`;
+    el.querySelector('.url').textContent = url;
+    grid.appendChild(el);
+    new QRCode(el.querySelector('.qr'), { text: url, width: 320, height: 320, correctLevel: QRCode.CorrectLevel.M });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "hyllykartta", "runtimeExecutable": "node", "runtimeArgs": ["tools/dev-server.mjs", "8010"], "port": 8010 }
+  ]
+}

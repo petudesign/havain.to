@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hyllykartta simulation</title>
+<meta name="description" content="Compares four ways of finding near-expiry products on a grocery shelf, under the same demand and staff time.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <header class="intro">
+    <p class="eyebrow">Hyllykartta · simulation</p>
+    <h1>How much does a shelf map help with date checks?</h1>
+    <p class="lede">One dairy shelf with 40 sections, four weeks, the same customers and the same staff time. Four ways of finding near-expiry products, each run 200 times.</p>
+    <p class="notice" role="note"><strong>Mostly placeholder numbers.</strong> Published data does not exist for the two parameters that matter most (time on the shelf, time a check takes). Some values are calibrated from my own years in a hypermarket dairy department; the rest are assumptions. Read the results as a comparison between strategies, not as a forecast of real waste.</p>
+  </header>
+
+  <section class="strategies" aria-label="Strategies">
+    <div class="strategy" style="--c: var(--series-1)"><span class="swatch"></span><div><strong>Route</strong><span>Today’s practice. Date checks morning and evening, walking the shelf in order as far as time allows. The next shift often starts over.</span></div></div>
+    <div class="strategy" style="--c: var(--series-2)"><span class="swatch"></span><div><strong>Manual map</strong><span>The 2025 concept. Staff write down the earliest date per section; the map sets the order.</span></div></div>
+    <div class="strategy" style="--c: var(--series-3)"><span class="swatch"></span><div><strong>Map + 2D data</strong><span>Dates come from scanning 2D codes. Every near-expiry unit gets a label.</span></div></div>
+    <div class="strategy" style="--c: var(--series-4)"><span class="swatch"></span><div><strong>Map + 2D + sales</strong><span>Same data plus the sales rate. Only units that would not sell in time get a label.</span></div></div>
+  </section>
+
+  <section class="card" aria-labelledby="chart-title">
+    <div class="controls">
+      <div class="seg" role="radiogroup" aria-label="Measure">
+        <button type="button" role="radio" aria-checked="true" data-metric="marginEuroPerWeek">Margin</button>
+        <button type="button" role="radio" aria-checked="false" data-metric="marginAfterStaffEuroPerWeek">Margin − staff</button>
+        <button type="button" role="radio" aria-checked="false" data-metric="wasteEuroPerWeek">Waste</button>
+        <button type="button" role="radio" aria-checked="false" data-metric="missedPerWeek">Missed</button>
+        <button type="button" role="radio" aria-checked="false" data-metric="minutesPerDay">Staff time</button>
+      </div>
+      <label class="slider">
+        <span>Products with a 2D code <output id="coverage-out">100 %</output></span>
+        <input id="coverage" type="range" min="0" max="100" step="25" value="100">
+      </label>
+    </div>
+
+    <h2 id="chart-title" class="chart-title">Gross margin per week</h2>
+    <p id="chart-sub" class="chart-sub">€ per shelf. Higher is better.</p>
+    <div class="chart-wrap">
+      <svg id="chart" role="img" aria-labelledby="chart-title chart-sub"></svg>
+      <div id="tooltip" class="tooltip" hidden></div>
+      <div id="busy" class="busy" hidden>Running…</div>
+    </div>
+    <p class="axis-note">Staff minutes available per day for date checks on this shelf</p>
+    <p id="run-note" class="run-note"></p>
+
+    <label class="slider wide">
+      <span>Compare at <output id="minutes-out">20 min/day</output></span>
+      <input id="minutes" type="range" min="0" max="45" step="5" value="20">
+    </label>
+  </section>
+
+  <section class="card" aria-labelledby="table-title">
+    <h2 id="table-title" class="chart-title">Results at <span id="table-min">20</span> min/day</h2>
+    <p class="chart-sub">Medians per shelf per week, 10th–90th percentile below. Margin is the paired difference to today’s route. “Labelled, still wasted” = units that got a discount label and were thrown away anyway.</p>
+    <div class="table-scroll">
+      <table id="results">
+        <thead><tr><th scope="col">Strategy</th><th scope="col">Margin vs route €</th><th scope="col">After staff time vs route €</th><th scope="col">Markdown €</th><th scope="col">Waste €</th><th scope="col">Labelled, still wasted</th><th scope="col">Missed units</th><th scope="col">Time used min/day</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <details class="card assumptions">
+    <summary>Assumptions (<span id="param-count"></span>)</summary>
+    <div class="table-scroll">
+      <table id="params">
+        <thead><tr><th scope="col">Parameter</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </details>
+
+  <footer class="foot">
+    <p><a href="/app/">Try the phone prototype →</a></p>
+    <p>Model: <a href="https://github.com/petudesign/hyllykartta/blob/main/sim/model.js">sim/model.js</a>. Follow-up to <a href="https://www.petu.design/s-havikki/">S-hävikki</a> (2025).</p>
+  </footer>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
