@@ -96,7 +96,7 @@ Petteri Helttulan portfolioprojekti (petu.design). Se jatkaa vuoden 2025 palvelu
 ## Paikallinen ajo
 
 ```bash
-node /Users/petu/Documents/ChatGPT/Hyllykartta/tools/dev-server.mjs 8010
+node tools/dev-server.mjs 8010
 ```
 
 - Simulaatio: http://localhost:8010/

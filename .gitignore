@@ -150,3 +150,6 @@ vite.config.ts.timestamp-*
 
 # Private notes, never commit
 docs/private/
+
+# Local AI tool config
+.claude/
